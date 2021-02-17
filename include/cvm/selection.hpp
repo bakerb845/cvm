@@ -57,11 +57,11 @@ public:
 
     /// @result The starting x index when unpacking the layer.
     [[nodiscard]] int getStartPointInX(LayerIdentifier layer) const noexcept;
-    /// @result The ending x index (exclusive) when unpacking the layer.
+    /// @result The ending x index (inclusive) when unpacking the layer.
     [[nodiscard]] int getEndPointInX(LayerIdentifier layer) const noexcept;
     /// @result The starting y index when unpacking the layer.
     [[nodiscard]] int getStartPointInY(LayerIdentifier layer) const noexcept;
-    /// @result The ending y index (exclusive) when unpacking the layer.
+    /// @result The ending y index (inclusive) when unpacking the layer.
     [[nodiscard]] int getEndPointInY(LayerIdentifier layer) const noexcept;
 private:
     class SelectionImpl;

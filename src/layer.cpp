@@ -13,6 +13,7 @@
 #include "cvm/layer.hpp"
 #include "cvm/geodetic.hpp"
 #include "cvm/selection.hpp"
+#include "cvm/options.hpp"
 #include "cvm/constants.hpp"
 #include "private/interpolate.hpp"
 
@@ -158,9 +159,22 @@ Layer<E>::~Layer() = default;
 
 /// Load the layer
 template<LayerIdentifier E>
-void Layer<E>::load(const std::string &fileName, const Selection &selection,
-                    const bool isP)
+void Layer<E>::load(const Options &options, const bool isP)
 {
+    std::string fileName;
+    if (isP)
+    {
+        std::cout << "Loading Vp in layer: "
+                  << std::to_string(static_cast<int> (E) + 1) << std::endl;
+        fileName = options.getPVelocityFileName(E);
+    }
+    else
+    {
+        std::cout << "Loading Vs in layer: "
+                  << std::to_string(static_cast<int> (E) + 1) << std::endl;
+        fileName = options.getSVelocityFileName(E);
+    }
+    auto selection = options.getSelection();
 #ifdef USE_STD_FILESYSTEM
     if (!std::filesystem::exists(fileName))
     {
@@ -260,10 +274,10 @@ void Layer<E>::load(const std::string &fileName, const Selection &selection,
         pImpl->mLowerLeftUTM  = std::pair(utmX0, utmY0);
         pImpl->mUpperRightUTM = std::pair(utmX1, utmY1);          
 
-        int ix0 = 0;
-        int ix1 = 1;
-        int iy0 = 0;
-        int iy1 = 1;
+        int ix0 = selection.getStartPointInX(E); //0;
+        int ix1 = selection.getEndPointInX(E) + 1; //1;
+        int iy0 = selection.getStartPointInY(E); //0;
+        int iy1 = selection.getEndPointInY(E) + 1; //1;
         int iz0 = 0;
         int iz1 = nz;
         // Update
@@ -273,7 +287,7 @@ void Layer<E>::load(const std::string &fileName, const Selection &selection,
         auto nxyzRead
             = static_cast<size_t> ((ix1 - ix0)*(iy1 - iy0)*(iz1 - iz0));
         pImpl->resizeVelocity(nxyzRead, isP);
-        int nxRead = ix1 - ix0;
+        int nxRead = ix1 - ix0 + 1;
         auto nBytesRead = static_cast<size_t> (nxRead)*sizeof(float);
         char *cBufferPtr = nullptr;
         std::vector<char> cBuffer;
@@ -322,21 +336,32 @@ void Layer<E>::load(const std::string &fileName, const Selection &selection,
     // Fix water problem
     if (isP)
     {
+        auto vpWater = static_cast<float> (options.getPImputationVelocity());
         std::replace_if(pImpl->mVp.begin(), pImpl->mVp.end(),
                         [&](auto x){return x > NAN_CVM;},
-                        VP_WATER); 
+                        vpWater); 
+        auto [vpMin, vpMax] = std::minmax_element(pImpl->mVp.begin(),
+                                                  pImpl->mVp.end());
+        std::cout << "Min/max imputed Vp: "
+                  << *vpMin << " " << *vpMax << std::endl;
     }
     else
     {
+        auto vsWater = static_cast<float> (options.getSImputationVelocity());
         std::replace_if(pImpl->mVs.begin(), pImpl->mVs.end(),
                         [&](auto x){return x > NAN_CVM;},
-                        VS_WATER); 
+                        vsWater); 
+        auto [vsMin, vsMax] = std::minmax_element(pImpl->mVs.begin(),
+                                                  pImpl->mVs.end());
+        std::cout << "Min/max imputed Vs: "
+                  << *vsMin << " " << *vsMax << std::endl;
     }
     //for (auto vp : pImpl->mVp)
     //{
     //    std::cout << vp << " "; // << std::endl;
     //}
 
+    std::cout << std::endl;
 }
 
 /// Gets the layer identifier

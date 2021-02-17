@@ -130,12 +130,9 @@ void Model::load(const Options &options)
     Layer<CVM::LayerIdentifier::BOTTOM> layer3;
     // P velocity model first
     bool isP = true;
-    layer1.load(options.getPVelocityFileName(LayerIdentifier::TOP),
-                selection, isP);
-    layer2.load(options.getPVelocityFileName(LayerIdentifier::MIDDLE),
-                selection, isP);
-    layer3.load(options.getPVelocityFileName(LayerIdentifier::BOTTOM),
-                selection, isP);
+    layer1.load(options, isP);
+    layer2.load(options, isP);
+    layer3.load(options, isP);
     // Heal the layer
     std::cout << "Healing P velocity model..." << std::endl;
 
@@ -145,12 +142,9 @@ void Model::load(const Options &options)
     layer3.clear();
     // S velocity model
     isP = false; 
-    layer1.load(options.getSVelocityFileName(LayerIdentifier::TOP),
-                selection, isP);
-    layer2.load(options.getSVelocityFileName(LayerIdentifier::MIDDLE),
-                selection, isP);
-    layer3.load(options.getSVelocityFileName(LayerIdentifier::BOTTOM),
-                selection, isP);
+    layer1.load(options, isP);
+    layer2.load(options, isP);
+    layer3.load(options, isP);
 
 
 }

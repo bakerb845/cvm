@@ -5,7 +5,7 @@
 #include "cvm/enums.hpp"
 namespace CVM
 {
-class Selection;
+class Options;
 /// @brief Reads a CVM model.
 /// @copyright Ben Baker (University of Utah) distributed under the MIT license.
 template<LayerIdentifier E>
@@ -19,13 +19,12 @@ public:
     /// @brief Releases memory and resets the layer.
     void clear() noexcept;
     /// @brief Loads the CVM layer from disk.
-    /// @param[in] fileName   The name of the file containing the layer.
-    /// @param[in] selection  Defines the subset of the velocity model to read.
+    /// @param[in] options    Defines the CVM read options.
     /// @param[in] isP        True indicates this is a P-velocity layer.
     ///                       False indicates this is an S-velocity layer. 
     /// @throws std::invalid_argument if the file does not exist.
     /// @throws std::runtime_error if the file is not appropriately formatted.
-    void load(const std::string &fileName, const Selection  &selection, const bool isP);
+    void load(const Options  &options, const bool isP);
     /// @result A pointer to the P velocity (km/s) for this layer.
     /// @throw std::invalid_argument if \c havePVelocity() is false. 
     [[nodiscard]] const float *getPVelocityPointer() const;

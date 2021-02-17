@@ -18,6 +18,12 @@ public:
     Selection mSelection;
     std::array<std::string, 3> mPModelName{"", "", ""};
     std::array<std::string, 3> mSModelName{"", "", ""};
+    double mPImputationVelocity = 1482;
+    double mSImputationVelocity = 0;
+    // NonLinLoc grid spacing in meters
+    double mNLLdx = 200;
+    double mNLLdy = 200;
+    double mNLLdz = 200;
 };
 
 /// C'tor
@@ -187,6 +193,34 @@ void Options::parse(const std::string &fileName)
         throw std::invalid_argument(errmsg); 
     }
     selection.setMinimumAndMaximumDepth(std::pair(depth0, depth1));
+
+    // Imputation velocities
+    try 
+    {
+        auto vpWater = pt.get<double> ("CVM.pImputationVelocity");
+        if (vpWater <= 0)
+        {
+            throw std::invalid_argument(
+               "P water imputation velocity must be positive");
+        }
+        pImpl->mPImputationVelocity = vpWater;
+    }   
+    catch (const std::exception &e) 
+    {   
+    }   
+    try
+    {
+        auto vsWater = pt.get<double> ("CVM.sImputationVelocity");
+        if (vsWater < 0)
+        {
+            throw std::invalid_argument(
+               "S water imputation velocity cannot be negative");
+        }
+        pImpl->mSImputationVelocity = vsWater;
+    }
+    catch (const std::exception &e)
+    {
+    }
 }
 
 Selection Options::getSelection() const noexcept
@@ -216,4 +250,13 @@ std::string Options::getSVelocityFileName(const LayerIdentifier layer) const
     return pImpl->mSModelName[i];
 }
 
+/// Get the P imputation value
+double Options::getPImputationVelocity() const
+{
+    return pImpl->mPImputationVelocity;
+}
 
+double Options::getSImputationVelocity() const
+{
+    return pImpl->mSImputationVelocity;
+}

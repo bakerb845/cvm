@@ -192,7 +192,7 @@ void getMaxNxNy(const double maxLat, const double maxLon,
                                                c.getUTMZone());
         assert(lat1 <= c.getMaximumLatitude());
         assert(lon1 <= c.getMaximumLongitude());
-std::cout << lat1 << " " << lon1 << std::endl;
+//std::cout << lat1 << " " << lon1 << std::endl;
 #endif
         //std::cout << std::setprecision(14) << lat1 << " " << lon1 << std::endl;
         //std::cout << c.getMaximumLatitude() << " " << c.getMaximumLongitude() << std::endl;
