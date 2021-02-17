@@ -96,6 +96,16 @@ double Constants::getMinimumLongitude() noexcept
     return -129; //231.0;
 }
 
+double Constants::getMinimumDepth() noexcept
+{
+    return 0;
+}
+
+double Constants::getMaximumDepth() noexcept
+{
+    return 59400; 
+}
+
 double Constants::getLeastCommonMultipleOfGridSpacingsInXAndY() noexcept
 {
     return 1800;

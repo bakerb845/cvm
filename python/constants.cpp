@@ -87,6 +87,17 @@ double Constants::getUTMOriginInY() const noexcept
     return CVM::Constants::getUTMOriginInY();
 }
 
+/// Min/max depth
+double Constants::getMinimumDepth() const noexcept
+{
+    return CVM::Constants::getMinimumDepth();
+}
+
+double Constants::getMaximumDepth() const noexcept
+{
+    return CVM::Constants::getMaximumDepth();
+}
+
 
 void PCVM::initializeConstants(pybind11::module &m)
 {
@@ -133,5 +144,12 @@ void PCVM::initializeConstants(pybind11::module &m)
     c.def("get_maximum_longitude",
           &PCVM::Constants::getMaximumLongitude,
           "The largest longitude in degrees in the CVM.  While a layer may technically extend past the this longitude the interpolation is not well-defined.");
+
+    c.def("get_minimum_depth",
+          &PCVM::Constants::getMinimumDepth,
+          "The shallowest depth in the CVM.  This should be 0 meters; i.e., sea-level.");
+    c.def("get_maximum_depth",
+          &PCVM::Constants::getMaximumDepth,
+          "The deepest depth in the CVM in meters.");
 
 }

@@ -230,8 +230,8 @@ public:
             mUpdateGridPoints = false;
             return;
         }
-std::cout << mMinimumLatitude << " " << mMaximumLatitude << std::endl;
-std::cout << mMinimumLongitude << " " << mMaximumLongitude << std::endl;
+//std::cout << mMinimumLatitude << " " << mMaximumLatitude << std::endl;
+//std::cout << mMinimumLongitude << " " << mMaximumLongitude << std::endl;
         getMinNxNy(mMinimumLatitude, mMinimumLongitude, &mStartX, &mStartY);
         getMaxNxNy(mMaximumLatitude, mMaximumLongitude, &mEndX,   &mEndY);
         mUpdateGridPoints = false;
@@ -291,6 +291,8 @@ std::cout << x0 << " " << y0 << " " << utmx0 << " " << utmy0 << " "
     double mMinimumLongitude = Constants::getMinimumLongitude(); 
     double mMaximumLatitude  = Constants::getMaximumLatitude();
     double mMaximumLongitude = Constants::getMaximumLongitude();
+    double mMinimumDepth = Constants::getMinimumDepth();
+    double mMaximumDepth = Constants::getMaximumDepth();
     bool mReadAll = true;
     bool mUpdateGridPoints = true;
 };
@@ -410,6 +412,35 @@ void Selection::setMaximumLatitudeAndLongitude(
     pImpl->mUpdateGridPoints = true;
     pImpl->mReadAll = false;
     //pImpl->updateGridIndices();
+}
+
+/// Set the minimum and maximum depths
+void Selection::setMinimumAndMaximumDepth(
+    const std::pair<double, double> depths)
+{
+    if (depths.first > depths.second)
+    {
+        throw std::invalid_argument("depths.first = "
+                                  + std::to_string(depths.first)
+                                  + " cannot exceed "
+                                  + std::to_string(depths.second)); 
+    }
+    if (depths.first < Constants::getMinimumDepth())
+    {
+        throw std::invalid_argument("depths.first = "
+                                + std::to_string(depths.first)
+                                + " cannot exceed "
+                                + std::to_string(Constants::getMinimumDepth()));
+    }
+    if (depths.second > Constants::getMaximumDepth())
+    {
+        throw std::invalid_argument("depths.second = "
+                                + std::to_string(depths.first)
+                                + " cannot exceed "
+                                + std::to_string(Constants::getMaximumDepth()));
+    }
+    pImpl->mMinimumDepth = depths.first;
+    pImpl->mMaximumDepth = depths.second;
 }
 
 /// Get start x index

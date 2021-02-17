@@ -47,6 +47,10 @@ public:
     /// @note A layer may extend beyond this longitude but interpolation
     ///       at that point is ill-defined.
     [[nodiscard]] double getMaximumLongitude() const noexcept;
+    /// @result Minimum depth in meters
+    [[nodiscard]] double getMinimumDepth() const noexcept;
+    /// @result Maximum depth in meters
+    [[nodiscard]] double getMaximumDepth() const noexcept;
 
 
     /// @result The x UTM (zone 10) of the lower left corner of the model

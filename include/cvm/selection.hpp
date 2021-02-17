@@ -48,6 +48,12 @@ public:
     ///         maximum latitude in the CVM or latlon.second is greater
     ///         than the maximum longitude in the CVM.
     void setMaximumLatitudeAndLongitude(std::pair<double, double> latlon);
+    /// @param[in] depths   depths.first is the minimum depth in meters
+    ///                     and depths.second is the maximum depth in meters.
+    /// @throw std::invalid_argument if depths.first is greater than
+    ///        depths.second or depths.first or depths.second are out of
+    ///        the model bounds.
+    void setMinimumAndMaximumDepth(std::pair<double, double> depth);
 
     /// @result The starting x index when unpacking the layer.
     [[nodiscard]] int getStartPointInX(LayerIdentifier layer) const noexcept;

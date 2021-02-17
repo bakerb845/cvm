@@ -157,18 +157,36 @@ void Options::parse(const std::string &fileName)
     selection.setMinimumLatitudeAndLongitude(std::pair(lat0, lon0)); 
     selection.setMaximumLatitudeAndLongitude(std::pair(lat1, lon1));
     pImpl->mSelection = selection;
-/*
-    double depth0 = 
-    double depth1 = 
+
+    double depth0 = Constants::getMinimumDepth();
+    double depth1 = Constants::getMaximumDepth();
     try
     {
         double depth0 = pt.get<double> ("Selection.depth0");
         double depth1 = pt.get<double> ("Selection.depth1");
+        depth0 = depth0/1000;
+        depth1 = depth1/1000;
     }
     catch (const std::exception &e)
     {
     }
-*/
+    if (depth1 < depth0)
+    {
+        throw std::invalid_argument("Max cannot be less than minimum depth");
+    }
+    if (depth0 < Constants::getMinimumDepth())
+    {
+        auto errmsg = "Minimum model depth must be at least "
+                    + std::to_string(Constants::getMinimumDepth()/1000);
+        throw std::invalid_argument(errmsg);
+    }
+    if (depth1 > Constants::getMaximumDepth())
+    {
+        auto errmsg = "Maximum model depth cannot exceed "
+                    + std::to_string(Constants::getMaximumDepth()/1000);
+        throw std::invalid_argument(errmsg); 
+    }
+    selection.setMinimumAndMaximumDepth(std::pair(depth0, depth1));
 }
 
 Selection Options::getSelection() const noexcept

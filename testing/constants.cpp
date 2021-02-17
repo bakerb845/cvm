@@ -60,6 +60,11 @@ TEST(Constants, Constants)
     EXPECT_NEAR(c.getLayerEndDepth(LayerIdentifier::MIDDLE), z1, 1.e-11);
     EXPECT_NEAR(c.getLayerEndDepth(LayerIdentifier::BOTTOM), z2, 1.e-11);
 
+    EXPECT_NEAR(c.getLayerStartDepth(LayerIdentifier::TOP),
+                c.getMinimumDepth(), 1.e-12);
+    EXPECT_NEAR(c.getLayerEndDepth(LayerIdentifier::BOTTOM),
+                c.getMaximumDepth(), 1.e-12);
+
     auto mLCM = static_cast<double> (std::lcm(std::lcm(200, 300), 900));
     EXPECT_NEAR(c.getLeastCommonMultipleOfGridSpacingsInXAndY(), mLCM, 1.e-12);
 

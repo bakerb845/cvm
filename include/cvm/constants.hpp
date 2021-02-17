@@ -54,6 +54,11 @@ public:
     ///       at that point is ill-defined.
     [[nodiscard]] static double getMaximumLongitude() noexcept;
 
+    /// @result The minimum CVM model depth in meters.
+    [[nodiscard]] static double getMinimumDepth() noexcept;
+    /// @result The maximum CVM model depth in meters.
+    [[nodiscard]] static double getMaximumDepth() noexcept;
+
 
     /// @result The x UTM (zone 10) of the lower left corner of the model
     ///         in meters.
