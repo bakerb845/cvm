@@ -38,4 +38,12 @@ An example configuration script, config.sh, would look like
     -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python" \
     -DPYTHON_LIBRARY="/home/bbaker/anaconda3/lib/libpython3.8.so"
 
+# Building the Software
 
+After configuring the software, descend into the build directory and compile.
+
+    make
+    make test
+    make install
+
+The last command may require sudo privileges.
