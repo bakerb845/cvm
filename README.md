@@ -10,6 +10,13 @@ This is a utility for converting the Cascadia Community Velocity Model to a NonL
     3.  A lot of RAM.  Worst case is this program will about 10-15 Gb of RAM.  It's a big model.
     4.  [pybind11](https://github.com/pybind/pybind11) and Python3 for creating a Python interface.
 
+# Download the Software
+
+Descend into the working directory of your choice, clone the repository, then descend into the CVM directory
+
+    git clone https://github.com/bakerb845/cvm.git
+    cd cvm
+
 # Configure 
 
 An example configuration script is given as config.sh.  Effectively all it does is create a build directory and instantiate CMake.
