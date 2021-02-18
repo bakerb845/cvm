@@ -53,3 +53,17 @@ After configuring the software, descend into the build directory and compile.
     make install
 
 The last command may require sudo privileges.
+
+# Usage
+
+## Command Line Interface
+
+One way to run the software is through the command line interface.  This requires editing an initialization file.  An example ini file is provided in examples/seattle.ini.  To use this you would do something analogous to
+
+    cvm2nll --ini ROOT_SOURCE_DIRECTORY/examples/seattle.ini 
+
+## Python
+
+If you have compiled the Python bindings and set the PYTHONPATH in your bashrc then you can leverage some library functionality from Python.  This is useful for when you, say, have station latitudes and longitudes that you must then make consistent with a Cartesian system in NonLinLoc.  unit\_test.py will provide examples of how to import the library and use different modules.
+
+    
