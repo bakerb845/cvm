@@ -70,12 +70,12 @@ if (${GTEST_FOUND})
    add_test(NAME unitTests COMMAND unitTests)
 endif()
 
-find_package(pybind11)
-if (${pybind11_FOUND})
+if (${BUILD_PYTHON})
+   find_package(pybind11 REQUIRED)
    message("Will create Python interface")
    file(COPY ${CMAKE_SOURCE_DIR}/python/unit_test.py DESTINATION .)
-   find_package(PythonInterp 3)
-   find_package(PythonLibs 3)
+   #find_package(PythonInterp 3)
+   #find_package(PythonLibs 3)
    add_library(pycvm MODULE
                python/pycvm.cpp
                python/constants.cpp
@@ -95,7 +95,7 @@ endif()
 #                                Installation                                  #
 ################################################################################
 include(GNUInstallDirs)
-if (${pybind11_FOUND})
+if (${BUILD_PYTHON})
    install(TARGETS cvm2nll cvm pycvm
            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

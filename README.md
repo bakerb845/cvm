@@ -34,15 +34,26 @@ More likely you'll have to throw CMake a bone.  I typically do this with a scrip
     fi
     mkdir ${BUILD_DIR}
     cd ${BUILD_DIR}
-    cmake .. \
-    -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_CXX_FLAGS="-Wall -O2" \
     -DCMAKE_C_FLAGS="-Wall -O2" \
-    -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python" \
-    -DPYTHON_LIBRARY="/home/bbaker/anaconda3/lib/libpython3.8.so"
+    -DBUILD_PYTHON=TRUE \
+    -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python"
 
-If you do not want the Python bindings then you can disregard the given Python information.
+If you do not want the Python bindings then you can disregard the given Python information; e.g., 
+
+    #!/usr/bin/bash
+    BUILD_DIR=clang_build
+    if [ -d ${BUILD_DIR} ]; then
+       rm -rf ${BUILD_DIR}
+    fi  
+    mkdir ${BUILD_DIR}
+    cd ${BUILD_DIR}
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_CXX_FLAGS="-Wall -O2" \
+    -DCMAKE_C_FLAGS="-Wall -O2"
 
 # Building the Software
 
