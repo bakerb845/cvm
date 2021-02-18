@@ -8,28 +8,15 @@ find_package(Boost)
 find_package(GTest)
 
 # Do I have std::filesystem?
-include(CheckIncludeFileCXX)
-check_include_file_cxx(filesystem HAVE_STD_FILESYSTEM)
-#check_cxx_source_compiles("
-##include <filesystem>
-#int main () {
-#}
-#"
-#   HAVE_STD_FILESYSTEM
-#)
+try_compile(HAVE_STD_FILESYSTEM ${CMAKE_BINARY_DIR}/temp ${CMAKE_SOURCE_DIR}/testing/fs.cpp
+            LINK_LIBRARIES -lstdc++fs
+            CXX_STANDARD 17)
 if (${HAVE_STD_FILESYSTEM})
    message("Using std::filesystem")
    add_compile_definitions(USE_STD_FILESYSTEM)
    link_libraries(stdc++fs)
 else()
-   check_include_file_cxx(filesystem HAVE_STD_EXPERIMENTAL_FILESYSTEM)
-   if (${HAVE_STD_EXPERIMENTAL_FILESYSTEM}) 
-      message("Using experimental filesystem")
-      add_compile_definitions(USE_STD_EXPERIMENTAL_FILESYSTEM)
-      link_libraries(stdc++fs)
-   else()
-      message("Disabling filesystem") 
-   endif()
+   message("Disabling filesystem") 
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/include/private/version.hpp.in
