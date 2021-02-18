@@ -25,7 +25,7 @@ In theory, CMake can automatically create a Makefile for your machine.  In pract
     cd build
     cmake ..
 
-An example configuration script, config.sh, for building the entire may look like
+More likely you'll have to throw CMake a bone.  I typically do this with a script.  For example, configuring a build for the entire package from a script, say config.sh, would be similar to what follows
 
     #!/usr/bin/bash
     BUILD_DIR=clang_build
