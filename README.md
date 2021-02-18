@@ -7,7 +7,7 @@ This is a utility for converting the Cascadia Community Velocity Model to a NonL
    1.  A C++17 compiler.
    2.  [CMake](https://cmake.org/) v3.10 or greater.
    3.  [Boost](https://www.boost.org/)
-   3.  A lot of RAM.  Worst case is this program will about 10-15 Gb of RAM.  It's a big model.
+   3.  A lot of RAM.  Worst case is this program will use about 10-15 Gb of RAM.  Though I've done some quirky things to lower the memory footprint it's still a big model.  Also, the amount of RAM may not be a show-stopper.  Ideally, your system will leverage swap space but that can make things painfully slow.
    4.  Optionally, [pybind11](https://github.com/pybind/pybind11) and Python3 for creating a Python interface.
 
 # Download the Software
