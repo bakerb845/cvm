@@ -3,6 +3,13 @@
 #include <string>
 #ifdef USE_STD_FILESYSTEM
   #include <filesystem>
+  namespace fs = std::filesystem;
+  #define HAVE_FS 1
+#endif
+#ifdef USE_STD_EXPERIMENTAL_FILESYSTEM
+  #include <experimental/filesystem>
+  namespace = fs = std::experimental::filesystem;
+  #define HAVE_FS 1
 #endif
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
@@ -88,16 +95,16 @@ void Options::parse(const std::string &fileName)
     pImpl->mSModelName[0] = pt.get<std::string>("CVM.layer1SModelName");
     pImpl->mSModelName[1] = pt.get<std::string>("CVM.layer2SModelName"); 
     pImpl->mSModelName[2] = pt.get<std::string>("CVM.layer3SModelName");
-#ifdef USE_STD_FILESYSTEM
+#ifdef HAVE_fS
     for (size_t i = 0; i < pImpl->mPModelName.size(); ++i)
     {
-        if (!std::filesystem::exists(pImpl->mPModelName[i]))
+        if (!fs::exists(pImpl->mPModelName[i]))
         {
             std::cerr << "P model name: " << pImpl->mPModelName[i]
                       << " does not exist" << std::endl;
             pImpl->mPModelName[i].clear();
         }
-        if (!std::filesystem::exists(pImpl->mSModelName[i]))
+        if (!fs::exists(pImpl->mSModelName[i]))
         {
             std::cerr << "S model name: " << pImpl->mSModelName[i]
                       << " does not exist" << std::endl;

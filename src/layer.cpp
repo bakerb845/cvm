@@ -5,10 +5,17 @@
 #include <algorithm>
 #include <string>
 #ifndef NDEBUG
-#include <cassert>
+  #include <cassert>
 #endif
 #ifdef USE_STD_FILESYSTEM
   #include <filesystem>
+  namespace fs = std::filesystem;
+  #define HAVE_FS 1
+#endif
+#ifdef USE_STD_EXPERIMENTAL_FILESYSTEM
+  #include <experimental/filesystem>
+  namespace = fs = std::experimental::filesystem;
+  #define HAVE_FS 1
 #endif
 #include "cvm/layer.hpp"
 #include "cvm/geodetic.hpp"
@@ -175,8 +182,8 @@ void Layer<E>::load(const Options &options, const bool isP)
         fileName = options.getSVelocityFileName(E);
     }
     auto selection = options.getSelection();
-#ifdef USE_STD_FILESYSTEM
-    if (!std::filesystem::exists(fileName))
+#ifdef HAVE_FS
+    if (!fs::exists(fileName))
     {
         throw std::invalid_argument("File: " + fileName + " does not exist");
     }

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(cvm VERSION 0.1.0 LANGUAGES CXX)
+project(cvm VERSION 0.1.0 LANGUAGES CXX C)
 enable_testing()
 
 
@@ -8,17 +8,28 @@ find_package(Boost)
 find_package(GTest)
 
 # Do I have std::filesystem?
-check_cxx_source_compiles("
-#include <filesystem>
-int main () {
-}
-"
-   HAVE_STD_FILESYSTEM
-)
+include(CheckIncludeFileCXX)
+check_include_file_cxx(filesystem HAVE_STD_FILESYSTEM)
+#check_cxx_source_compiles("
+##include <filesystem>
+#int main () {
+#}
+#"
+#   HAVE_STD_FILESYSTEM
+#)
 if (${HAVE_STD_FILESYSTEM})
    message("Using std::filesystem")
    add_compile_definitions(USE_STD_FILESYSTEM)
    link_libraries(stdc++fs)
+else()
+   check_include_file_cxx(filesystem HAVE_STD_EXPERIMENTAL_FILESYSTEM)
+   if (${HAVE_STD_EXPERIMENTAL_FILESYSTEM}) 
+      message("Using experimental filesystem")
+      add_compile_definitions(USE_STD_EXPERIMENTAL_FILESYSTEM)
+      link_libraries(stdc++fs)
+   else()
+      message("Disabling filesystem") 
+   endif()
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/include/private/version.hpp.in
@@ -35,7 +46,8 @@ set(CVM_LIBRARY_SRC
     src/geodetic.cpp
     src/selection.cpp
     src/model.cpp
-    src/version.cpp)
+    src/version.cpp
+    external/visit_writer.c)
 if (Boost_FOUND)
    set(CVM_LIBRARY_SRC ${CVM_LIBRARY_SRC} src/options.cpp)
 endif()
