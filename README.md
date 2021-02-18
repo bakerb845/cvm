@@ -38,7 +38,7 @@ An example configuration script, config.sh, for building the entire may look lik
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_C_COMPILER=clang \
     -DCMAKE_CXX_FLAGS="-Wall -O2" \
-    -DCMAKE_C_COMPILER="-Wall -O2" \
+    -DCMAKE_C_FLAGS="-Wall -O2" \
     -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python" \
     -DPYTHON_LIBRARY="/home/bbaker/anaconda3/lib/libpython3.8.so"
 
