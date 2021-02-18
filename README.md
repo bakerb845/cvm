@@ -39,7 +39,8 @@ More likely you'll have to throw CMake a bone.  I typically do this with a scrip
     -DCMAKE_CXX_FLAGS="-Wall -O2" \
     -DCMAKE_C_FLAGS="-Wall -O2" \
     -DBUILD_PYTHON=TRUE \
-    -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python"
+    -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python" \
+    -DPYTHON_LIBRARY="/home/bbaker/anaconda3/lib/libpython3.8.so"
 
 If you do not want the Python bindings then you can disregard the given Python information; e.g., 
 
