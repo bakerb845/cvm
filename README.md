@@ -58,9 +58,10 @@ The last command may require sudo privileges.
 
 ## Command Line Interface
 
-One way to run the software is through the command line interface.  This requires editing an initialization file.  An example ini file is provided in examples/seattle.ini.  To use this you would do something analogous to
+One way to run the software is through the command line interface.  This requires editing an initialization file.  An example ini file is provided in examples/seattle.ini.  To use this you could copy this example ini file to your local directory, modify the file paths and options as required, and extract the CVM with something analogous to
 
-    cvm2nll --ini ROOT_SOURCE_DIRECTORY/examples/seattle.ini 
+    cp ROOT_SOURCE_DIRECTORY/examples/seattle.ini ./seattle_modify.ini
+    cvm2nll --ini seattle_modify.ini 
 
 ## Python
 
