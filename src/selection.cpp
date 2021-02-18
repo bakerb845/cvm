@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include <array>
 #include <vector>
 #include <cassert>
 #include "cvm/selection.hpp"
