@@ -12,11 +12,6 @@
   namespace fs = std::filesystem;
   #define HAVE_FS 1
 #endif
-#ifdef USE_STD_EXPERIMENTAL_FILESYSTEM
-  #include <experimental/filesystem>
-  namespace = fs = std::experimental::filesystem;
-  #define HAVE_FS 1
-#endif
 #include "cvm/layer.hpp"
 #include "cvm/geodetic.hpp"
 #include "cvm/selection.hpp"
