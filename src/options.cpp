@@ -221,6 +221,47 @@ void Options::parse(const std::string &fileName)
     catch (const std::exception &e)
     {
     }
+
+    // NLL grid spacing
+    try
+    {
+        auto dx = pt.get<double> ("NLL.dx");
+        if (dx <= 0)
+        {
+            throw std::invalid_argument("NLL dx must be positive");
+        }
+        pImpl->mNLLdx = dx; 
+    }
+    catch(const std::exception &e)
+    {
+    }
+    try
+    {
+        auto dy = pt.get<double> ("NLL.dy");
+        if (dy <= 0)
+        {
+            throw std::invalid_argument("NLL dy must be positive");
+        }
+        pImpl->mNLLdy = dy;
+    }
+    catch(const std::exception &e) 
+    {
+    }
+    try
+    {
+        auto dz = pt.get<double> ("NLL.dz");
+        if (dz <= 0)
+        {
+            throw std::invalid_argument("NLL dz must be positive");
+        }
+        pImpl->mNLLdz = dz;
+    }
+    catch(const std::exception &e) 
+    {
+    }
+
+
+
 }
 
 Selection Options::getSelection() const noexcept
@@ -260,3 +301,20 @@ double Options::getSImputationVelocity() const
 {
     return pImpl->mSImputationVelocity;
 }
+
+/// NLL grid spacing
+double Options::getNLLGridSpacingInX() const
+{
+    return pImpl->mNLLdx;
+}
+
+double Options::getNLLGridSpacingInY() const
+{
+    return pImpl->mNLLdy;
+}
+
+double Options::getNLLGridSpacingInZ() const
+{
+    return pImpl->mNLLdz;
+}
+

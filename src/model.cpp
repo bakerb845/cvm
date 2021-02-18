@@ -1,5 +1,7 @@
 #include <iostream>
+#include <cmath>
 #include <vector>
+#include <limits>
 #include <cassert>
 #include "cvm/model.hpp"
 #include "cvm/selection.hpp"
@@ -17,20 +19,26 @@ void interpolateModel(const bool lvp,
                       const double z0, const double z1,
                       const double dx, const double dy, const double dz,
                       const Layer<CVM::LayerIdentifier::TOP> &layer1,
-                      const Layer<CVM::LayerIdentifier::MIDDLE> &layer2, 
-                      const Layer<CVM::LayerIdentifier::BOTTOM> &layer3)
+                      const Layer<CVM::LayerIdentifier::MIDDLE> &layer2,
+                      const Layer<CVM::LayerIdentifier::BOTTOM> &layer3,
+                      int *nx, int *ny, int *nz,
+                      std::vector<float> *v)
 {
     const float *vt = nullptr;
-    vt = layer1.getPVelocityPointer(); 
-    if (lvp){vt = layer1.getSVelocityPointer();}
-
     const float *vm = nullptr;
-    vm = layer2.getPVelocityPointer(); 
-    if (lvp){vm = layer2.getSVelocityPointer();}
-
     const float *vb = nullptr;
-    vb = layer3.getPVelocityPointer(); 
-    if (lvp){vb = layer3.getSVelocityPointer();}
+    if (lvp)
+    {
+        vt = layer1.getPVelocityPointer(); 
+        vm = layer2.getPVelocityPointer(); 
+        vb = layer3.getPVelocityPointer();
+    }
+    else
+    {
+        vt = layer1.getSVelocityPointer();
+        vm = layer2.getSVelocityPointer();
+        vb = layer3.getSVelocityPointer();
+    }
 
     auto [x0, y0] = layer1.getSouthWestCornerUTM();
     auto [x1, y1] = layer1.getNorthEastCornerUTM();
@@ -70,7 +78,46 @@ void interpolateModel(const bool lvp,
     auto ny3 = layer3.getNumberOfGridPointsInY();
     auto nz3 = layer3.getNumberOfGridPointsInZ();
 
+    // Try to pack as many x and y grid points in the available space
+    *nx = 0;
+    for (int i = 1; i < std::numeric_limits<int>::max(); ++i)
+    {
+        if (i*dx > (nx1 - 1)*dx1)
+        {
+            *nx = i;
+            break;
+        }
+    }
+    *ny = 0;
+    for (int i = 1; i < std::numeric_limits<int>::max(); ++i)
+    {
+        if (i*dy > (ny1 - 1)*dy1)
+        {
+            *ny = i;
+            break;
+        }
+    }
+#ifndef NDEBUG
+    assert(*nx > 0);
+    assert(*ny > 0);
+#endif
+    *nz = static_cast<int> (std::round(z1 - z0)/dz) + 1;
+    v->resize((*nx)*(*ny)*(*nz), 0);
+    // Begin interpolation process
+    for (int iz = 0; iz < *nz; ++iz)
+    {
+        for (int iy = 0; iy < *ny; ++iy)
+        {
+            for (int ix = 0; ix < *nx; ++ix)
+            {
+                auto x = static_cast<float> (dx*ix);
+                auto y = static_cast<float> (dy*iy);
+                auto z = static_cast<float> (z0 + dz*iz);
+                // Check if z is in one of the problem areas
 
+            }
+        }
+    }
 }
 
 }
@@ -135,7 +182,17 @@ void Model::load(const Options &options)
     layer3.load(options, isP);
     // Heal the layer
     std::cout << "Healing P velocity model..." << std::endl;
-
+    double z0 = 0;
+    double z1 = 40*1000;
+    double dx = options.getNLLGridSpacingInX();
+    double dy = options.getNLLGridSpacingInY();
+    double dz = options.getNLLGridSpacingInZ();
+    int nx, ny, nz;
+    interpolateModel(isP,
+                     z0, z1, 
+                     dx, dy, dz,
+                     layer1, layer2, layer3,
+                     &nx, &ny, &nz, &pImpl->mPModel);
     // Release memory
     layer1.clear();
     layer2.clear();

@@ -360,6 +360,15 @@ void Layer<E>::load(const Options &options, const bool isP)
     //{
     //    std::cout << vp << " "; // << std::endl;
     //}
+    // It's loaded
+    if (isP)
+    {
+        pImpl->mHavePVelocity = true;
+    }
+    else
+    {
+        pImpl->mHaveSVelocity = true;
+    }
 
     std::cout << std::endl;
 }

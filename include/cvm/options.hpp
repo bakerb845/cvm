@@ -56,6 +56,9 @@ public:
 
     /// @name NonLinLoc
     /// @{
+    double getNLLGridSpacingInX() const;
+    double getNLLGridSpacingInY() const;
+    double getNLLGridSpacingInZ() const;
     /// @}
 private:
     class OptionsImpl;
