@@ -49,10 +49,8 @@ If you do not want the Python bindings then you can disregard the given Python i
     fi  
     mkdir ${BUILD_DIR}
     cd ${BUILD_DIR}
-    -DCMAKE_C_COMPILER=clang \
     -DCMAKE_CXX_COMPILER=clang++ \
-    -DCMAKE_CXX_FLAGS="-Wall -O2" \
-    -DCMAKE_C_FLAGS="-Wall -O2"
+    -DCMAKE_CXX_FLAGS="-Wall -O2"
 
 # Building the Software
 

@@ -71,10 +71,9 @@ public:
     [[nodiscard]] double getGridSpacingInZ() const;
 
 
-    void writePVelocitiesToFile(const std::string &fileName,
-                                FileType fileType = FileType::NLL);
-    void writeSVelocitiesToFile(const std::string &fileName,
-                                FileType fileType = FileType::NLL);
+    void writeVelocities(const std::string &pFileName,
+                         const std::string &sFileName,
+                         FileType fileType = FileType::NLL) const;
 private:
     class ModelImpl;
     std::unique_ptr<ModelImpl> pImpl;

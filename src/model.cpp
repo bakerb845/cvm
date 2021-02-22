@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <array>
 #include <vector>
@@ -53,6 +54,93 @@ float interp3d(const int nxLayer, const int nyLayer, const int nzLayer,
                                        static_cast<float> ((iyq + 1)*dyLayer),
                                        static_cast<float> (izq*dzLayer),
                                        static_cast<float> ((izq + 1)*dzLayer),
+                                       x, y, z,
+                                       v8.data());
+    return vInt;
+
+}
+
+float interp3d(const int nxLayer1, const int nyLayer1, const int nzLayer1,
+               const int nxLayer2, const int nyLayer2,
+               const double zEnd1, const double zStart2,
+               const double dxLayer1, const double dyLayer1,
+               const double dxLayer2, const double dyLayer2,
+               const float x, const float y, const float z,
+               const float *vLayer1, const float *vLayer2)
+{
+    // Interpolate onto corners of next layer at the corner of cells
+    auto ixq1 = static_cast<int> (x/dxLayer1);
+    auto iyq1 = static_cast<int> (y/dyLayer1);
+    auto izq1 = nzLayer1 - 2;
+    auto ixq2 = static_cast<int> (x/dxLayer2);
+    auto iyq2 = static_cast<int> (y/dyLayer2);
+    int izq2  = 0;
+    if (ixq1 == nxLayer1 - 1){ixq1 = ixq1 - 1;} 
+    if (iyq1 == nyLayer1 - 1){iyq1 = iyq1 - 1;}
+    if (ixq2 == nxLayer2 - 1){ixq2 = ixq2 - 1;}
+    if (iyq2 == nyLayer2 - 1){iyq2 = iyq2 - 1;}
+#ifndef NDEBUG
+    assert(ixq1 >= 0 && ixq1 < nxLayer1 - 1); 
+    assert(iyq1 >= 0 && iyq1 < nyLayer1 - 1); 
+    assert(ixq2 >= 0 && ixq2 < nxLayer2 - 1);
+    assert(iyq2 >= 0 && iyq2 < nyLayer2 - 1);
+#endif
+    // Step 1: Interpolate onto bottom of the 3D voxel in subsequent layer
+    std::array<float, 4> v4;
+    auto indxLayer2 = izq2*nxLayer2*nyLayer2
+                    + iyq2*nxLayer2
+                    + ixq2;
+    v4[0] = vLayer2[indxLayer2];
+    v4[1] = vLayer2[indxLayer2 + 1]; 
+    v4[2] = vLayer2[indxLayer2 + nxLayer2];
+    v4[3] = vLayer2[indxLayer2 + nxLayer2 + 1]; 
+ 
+    std::array<float, 8> v8;
+    v8[0] = bilinearInterpolation(static_cast<float> (ixq2*dxLayer2),
+                                  static_cast<float> ((ixq2 + 1)*dxLayer2),
+                                  static_cast<float> (iyq2*dyLayer2),
+                                  static_cast<float> ((iyq2 + 1)*dyLayer2),
+                                  static_cast<float> (ixq1*dxLayer1),
+                                  static_cast<float> (iyq1*dyLayer1),
+                                  v4.data());
+    v8[1] = bilinearInterpolation(static_cast<float> (ixq2*dxLayer2),
+                                  static_cast<float> ((ixq2 + 1)*dxLayer2),
+                                  static_cast<float> (iyq2*dyLayer2),
+                                  static_cast<float> ((iyq2 + 1)*dyLayer2),
+                                  static_cast<float> (ixq1*dxLayer1),
+                                  static_cast<float> ((iyq1 + 1)*dyLayer1),
+                                  v4.data());
+    v8[2] = bilinearInterpolation(static_cast<float> (ixq2*dxLayer2),
+                                  static_cast<float> ((ixq2 + 1)*dxLayer2),
+                                  static_cast<float> (iyq2*dyLayer2),
+                                  static_cast<float> ((iyq2 + 1)*dyLayer2),
+                                  static_cast<float> ((ixq1 + 1)*dxLayer1),
+                                  static_cast<float> (iyq1*dyLayer1),
+                                  v4.data());
+    v8[3] = bilinearInterpolation(static_cast<float> (ixq2*dxLayer2),
+                                  static_cast<float> ((ixq2 + 1)*dxLayer2),
+                                  static_cast<float> (iyq2*dyLayer2),
+                                  static_cast<float> ((iyq2 + 1)*dyLayer2),
+                                  static_cast<float> ((ixq1 + 1)*dxLayer1),
+                                  static_cast<float> ((iyq1 + 1)*dyLayer1),
+                                  v4.data());
+
+
+    // Step 2: Now interpolate using in the 3D voxel  
+    auto indxLayer1 = izq1*nxLayer1*nyLayer1
+                    + iyq1*nxLayer1
+                    + ixq1;
+    v8[4] = vLayer1[indxLayer1 + nxLayer1*nyLayer1];
+    v8[5] = vLayer1[indxLayer1 + nxLayer1*nyLayer1 + 1]; 
+    v8[6] = vLayer1[indxLayer1 + nxLayer1*nyLayer1 + nxLayer1];
+    v8[7] = vLayer1[indxLayer1 + nxLayer1*nyLayer1 + nxLayer1 + 1];
+
+    auto vInt = trilinearInterpolation(static_cast<float> (ixq1*dxLayer1),
+                                       static_cast<float> ((ixq1 + 1)*dxLayer1),
+                                       static_cast<float> (iyq1*dyLayer1),
+                                       static_cast<float> ((iyq1 + 1)*dyLayer1),
+                                       static_cast<float> (zStart2),
+                                       static_cast<float> (zEnd1),
                                        x, y, z,
                                        v8.data());
     return vInt;
@@ -188,11 +276,37 @@ void interpolateModel(const bool lvp,
                                            dx3, dy3, dz3,
                                            x, y,
                                            z - static_cast<float> (zStart3),
-                                           vt);
+                                           vb);
                 }
                 else
                 {
-
+                    if (z > zEnd1 && z < zStart2)
+                    {
+                        // Interpolate in between top and middle layer
+                        v->at(idst) = interp3d(nx1, ny1, nz1,
+                                               nx2, ny2,
+                                               zEnd1, zStart2,
+                                               dx1, dy1,
+                                               dx2, dy2,
+                                               x, y, z,
+                                               vt, vm);
+                    }
+                    else if (z > zEnd2 && z < zStart3)
+                    {
+                        // Interpolate in between middle and bottom layer
+                        v->at(idst) = interp3d(nx2, ny2, nz2,
+                                               nx3, ny3,
+                                               zEnd2, zStart3,
+                                               dx2, dy2,
+                                               dx3, dy3,
+                                               x, y, z,
+                                               vm, vb);
+                    }
+                    else
+                    {
+                        std::cerr << "Need to extend base of model"
+                                  << std::endl;
+                    }
                 }
             }
         }
@@ -302,6 +416,17 @@ std::cout << z0 << " " << z1 << std::endl;
                      dx, dy, dz,
                      layer1, layer2, layer3,
                      &nx, &ny, &nz, &pImpl->mPModel);
+std::ofstream debugFile("vp.txt");
+for (int iz = 0; iz < nz; ++iz)
+{
+    int iy = ny/2;
+    for (int ix = 0; ix < nx; ++ix)
+    {
+        debugFile << ix*dx << " " << -iz*dz << " " << pImpl->mPModel[iz*(nx*ny) + iy*nx + ix] << std::endl;
+    }
+   debugFile << std::endl;
+}
+
     // S velocity model
     std::cout << "Loading S velocity model..." << std::endl;
     isP = false; 
@@ -391,8 +516,9 @@ const float *Model::getSVelocityPointer() const
     return pImpl->mSModel.data();
 }
 
-void Model::writePVelocitiesToFile(const std::string &fileName,
-                                   const FileType fileType)
+void Model::writeVelocities(const std::string &pFileName,
+                            const std::string &sFileName,
+                            const FileType fileType) const
 {
     auto nx = getNumberOfGridPointsInX();
     auto ny = getNumberOfGridPointsInY();
@@ -410,7 +536,7 @@ void Model::writePVelocitiesToFile(const std::string &fileName,
         const int useBinary = static_cast<int> (true);
         const int nVars = 2;
         std::array<int, 3> dims{nz, ny, nx};
-        const char *const varNames[2] = {"vp", "vs"};
+        const char *const varNames[2] = {"vp m/s", "vs m/s"};
         const float *vars[2] = {vp, vs}; 
         std::array<int, 2> centering{0, 0};
         std::array<int, 2> varDim{1, 1};
