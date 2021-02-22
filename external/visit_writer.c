@@ -359,8 +359,8 @@ static void write_header(void)
  * 
  * ************************************************************************* */
 
-void write_variables(int nvars, int *vardim, int *centering, 
-                     const char * const * varname, float **vars,
+void write_variables(int nvars, const int *vardim, const int *centering, 
+                     const char * const * varname, const float **vars,
                      int npts, int ncells)
 {
     char str[1024];
@@ -674,9 +674,9 @@ void write_variables(int nvars, int *vardim, int *centering,
 //
 // ***************************************************************************/
 
-void write_point_mesh(const char *filename, int ub, int npts, float *pts,
+void write_point_mesh(const char *filename, int ub, int npts, const float *pts,
                       int nvars, int *vardim, const char * const *varnames,
-                      float **vars)
+                      const float **vars)
 {
     int   i;
     char  str[128];
@@ -803,14 +803,15 @@ static int num_points_for_cell(int celltype)
 // ***************************************************************************/
 
 void write_unstructured_mesh(const char *filename, int ub, int npts,
-                             float *pts, int ncells, int *celltypes, int *conn,
-                             int nvars, int *vardim, int *centering,
-                             const char * const *varnames, float **vars)
+                             const float *pts, int ncells,
+                             const int *celltypes, const int *conn,
+                             int nvars, const int *vardim, const int *centering,
+                             const char * const *varnames, const float **vars)
 {
     int   i, j;
     char  str[128];
     int   conn_size = 0;
-    int  *curr_conn = conn;
+    const int  *curr_conn = conn;
 
     useBinary = ub;
     open_file(filename);
@@ -895,10 +896,10 @@ void write_unstructured_mesh(const char *filename, int ub, int npts,
 //
 // ***************************************************************************/
 
-void write_rectilinear_mesh(const char *filename, int ub, int *dims,
-                            float *x, float *y, float *z,
-                            int nvars, int *vardim, int *centering,
-                            const char * const *varnames, float **vars)
+void write_rectilinear_mesh(const char *filename, int ub, const int *dims,
+                            const float *x, const float *y, const float *z,
+                            int nvars, const int *vardim, const int *centering,
+                            const char * const *varnames, const float **vars)
 {
     int   i; //, j; Removed j BB
     char  str[128];
@@ -969,9 +970,9 @@ void write_rectilinear_mesh(const char *filename, int ub, int *dims,
 //
 // ***************************************************************************/
 
-void write_regular_mesh(const char *filename, int ub, int *dims,
-                        int nvars, int *vardim, int *centering,
-                        const char * const *varnames, float **vars)
+void write_regular_mesh(const char *filename, int ub, const int *dims,
+                        int nvars, const int *vardim, const int *centering,
+                        const char * const *varnames, const float **vars)
 {
     int  i;
 
@@ -1033,9 +1034,10 @@ void write_regular_mesh(const char *filename, int ub, int *dims,
 //
 // ***************************************************************************/
 
-void write_curvilinear_mesh(const char *filename, int ub, int *dims,float *pts,
-                            int nvars, int *vardim, int *centering,
-                            const char * const *varnames, float **vars)
+void write_curvilinear_mesh(const char *filename, int ub,
+                            const int *dims, const float *pts,
+                            int nvars, const int *vardim, const int *centering,
+                            const char * const *varnames, const float **vars)
 {
     int   i; //, j; Remove j BB
     char  str[128];
