@@ -34,10 +34,8 @@ More likely you'll have to throw CMake a bone.  I typically do this with a scrip
     fi
     mkdir ${BUILD_DIR}
     cd ${BUILD_DIR}
-    -DCMAKE_C_COMPILER=clang \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DCMAKE_CXX_FLAGS="-Wall -O2" \
-    -DCMAKE_C_FLAGS="-Wall -O2" \
     -DBUILD_PYTHON=TRUE \
     -DPYTHON_EXECUTABLE="/home/bbaker/anaconda3/bin/python" \
     -DPYTHON_LIBRARY="/home/bbaker/anaconda3/lib/libpython3.8.so"

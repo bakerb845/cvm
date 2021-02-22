@@ -15,6 +15,12 @@ PYBIND11_MODULE(pycvm, m)
                "The middle-to-lower crustal layer of the CVM")
         .value("bottom", CVM::LayerIdentifier::BOTTOM,
                "The mantle layer of the CVM");
+    // Output model type
+    pybind11::enum_<CVM::FileType> (m, "FileType")
+        .value("nll", CVM::FileType::NLL,
+               "NonLinLoc binary file format")
+        .value("vtk", CVM::FileType::VTK,
+               "Legacy VTK format");
     // Model constants
     PCVM::initializeConstants(m);
     // Geodetic calculations

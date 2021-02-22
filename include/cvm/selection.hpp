@@ -54,6 +54,9 @@ public:
     ///        depths.second or depths.first or depths.second are out of
     ///        the model bounds.
     void setMinimumAndMaximumDepth(std::pair<double, double> depth);
+    /// @result result.first is the minimum depth in meters and result.second
+    ///         is the maximum depth in meters.
+    [[nodiscard]] std::pair<double, double> getMinimumAndMaximumDepth() const noexcept;
 
     /// @result The starting x index when unpacking the layer.
     [[nodiscard]] int getStartPointInX(LayerIdentifier layer) const noexcept;

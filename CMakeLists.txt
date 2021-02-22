@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(cvm VERSION 0.1.0 LANGUAGES CXX C)
+project(cvm VERSION 0.1.0 LANGUAGES CXX)
 enable_testing()
 
 
@@ -34,7 +34,7 @@ set(CVM_LIBRARY_SRC
     src/selection.cpp
     src/model.cpp
     src/version.cpp
-    external/visit_writer.c)
+    external/visit_writer.cpp)
 if (Boost_FOUND)
    set(CVM_LIBRARY_SRC ${CVM_LIBRARY_SRC} src/options.cpp)
 endif()

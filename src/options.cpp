@@ -164,16 +164,15 @@ void Options::parse(const std::string &fileName)
     //std::cout << lat1 << " " << lon1 << std::endl;
     selection.setMinimumLatitudeAndLongitude(std::pair(lat0, lon0)); 
     selection.setMaximumLatitudeAndLongitude(std::pair(lat1, lon1));
-    pImpl->mSelection = selection;
 
     double depth0 = Constants::getMinimumDepth();
     double depth1 = Constants::getMaximumDepth();
     try
     {
-        double depth0 = pt.get<double> ("Selection.depth0");
-        double depth1 = pt.get<double> ("Selection.depth1");
-        depth0 = depth0/1000;
-        depth1 = depth1/1000;
+        depth0 = pt.get<double> ("Selection.depth0");
+        depth1 = pt.get<double> ("Selection.depth1");
+        depth0 = depth0*1000;
+        depth1 = depth1*1000;
     }
     catch (const std::exception &e)
     {
@@ -195,6 +194,7 @@ void Options::parse(const std::string &fileName)
         throw std::invalid_argument(errmsg); 
     }
     selection.setMinimumAndMaximumDepth(std::pair(depth0, depth1));
+    pImpl->mSelection = selection;
 
     // Imputation velocities
     try 

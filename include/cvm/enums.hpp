@@ -12,5 +12,14 @@ enum class LayerIdentifier
     MIDDLE = 1, /// The middle-crust layer.
     BOTTOM = 2  /// The lower-crust/mantle layer.
 };
+/// @brief The CVM can be written in a few foramts that are convenient for
+///        different things.  For example, legacy VTK and ParaView can be
+///        used to visualize the model whereas NLL can be used for subseqeuent
+///        locations.
+enum class FileType
+{
+    NLL = 0,    /// NonLinLoc file.
+    VTK = 1     /// VTK legacy file format.
+};
 }
 #endif

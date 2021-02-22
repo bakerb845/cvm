@@ -484,3 +484,7 @@ int Selection::getEndPointInY(LayerIdentifier layer) const noexcept
     return pImpl->mEndY[layerToIndex(layer)];
 }
 
+std::pair<double, double> Selection::getMinimumAndMaximumDepth() const noexcept
+{
+    return std::pair(pImpl->mMinimumDepth, pImpl->mMaximumDepth);
+}
