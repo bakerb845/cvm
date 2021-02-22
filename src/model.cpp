@@ -406,7 +406,6 @@ void Model::load(const Options &options)
     auto zStartStop = selection.getMinimumAndMaximumDepth();
     double z0 = zStartStop.first;
     double z1 = zStartStop.second;
-std::cout << z0 << " " << z1 << std::endl;
     double dx = options.getNLLGridSpacingInX();
     double dy = options.getNLLGridSpacingInY();
     double dz = options.getNLLGridSpacingInZ();
@@ -530,6 +529,33 @@ void Model::writeVelocities(const std::string &pFileName,
     auto vs = getSVelocityPointer();
     if (fileType == FileType::NLL)
     {
+        std::vector<char> vOut(4*nx*ny*nz); 
+        for (int iPhase = 0; iPhase < 2; ++iPhase)
+        {
+            // Permute velocity model for NLL
+            const float *v = vp;
+            if (iPhase == 1){v = vs;}
+            std::fill(vOut.begin(), vOut.end(), 0);
+            auto vOutPtr = reinterpret_cast<float *> (vOut.data());
+            for (int ix = 0; ix < nx; ++ix)
+            {
+                for (int iy = 0; iy < ny; ++iy)
+                {
+                    for (int iz = 0; iz < nz; ++iz)
+                    {
+                        auto isrc = iz*nx*ny + iy*nx + ix;
+                        auto idst = ix*ny*nz + iy*nz + iz;
+                        vOutPtr[idst] = v[isrc];
+                    }
+                }
+            }
+            // Write it
+            std::ofstream nllBinFile;
+            auto fileName = pFileName;
+            if (iPhase == 1){fileName = sFileName;}
+            nllBinFile.open(fileName, std::ios::out | std::ios::binary);
+            nllBinFile.write(vOut.data(), vOut.size());
+        }
     }
     else if (fileType == FileType::VTK)
     {
