@@ -20,9 +20,9 @@ public:
     Selection mSelection;
     std::array<std::string, 3> mPModelName{"", "", ""};
     std::array<std::string, 3> mSModelName{"", "", ""};
-    // NLL output file names
-    std::string mNLLFileNameP = "";
-    std::string mNLLFileNameS = "";
+    // NLL output file information
+    std::string mNLLOutputDirectory = "";
+    std::string mNLLRootName = "";
     // VTK output file name
     std::string mVTKFileName = "";
     // Imputation velocities
@@ -83,8 +83,8 @@ void Options::clear() noexcept
         pImpl->mPModelName[i].clear();
         pImpl->mSModelName[i].clear();
     }
-    pImpl->mNLLFileNameP.clear();
-    pImpl->mNLLFileNameS.clear();
+    pImpl->mNLLRootName.clear();
+    pImpl->mNLLOutputDirectory.clear();
     pImpl->mVTKFileName.clear();
     pImpl->mPImputationVelocity = 1482;
     pImpl->mSImputationVelocity = 0;
@@ -280,14 +280,14 @@ void Options::parse(const std::string &fileName)
     // NLL file name
     try
     {
-        pImpl->mNLLFileNameP = pt.get<std::string> ("NLL.pFileName");
+        pImpl->mNLLOutputDirectory = pt.get<std::string> ("NLL.outputDirectory");
     }
     catch (const std::exception &e)
     {
     }
     try
     {
-        pImpl->mNLLFileNameS = pt.get<std::string> ("NLL.sFileName");
+        pImpl->mNLLRootName = pt.get<std::string> ("NLL.rootName");
     }
     catch (const std::exception &e)
     {
@@ -358,14 +358,14 @@ double Options::getNLLGridSpacingInZ() const
 }
 
 /// NLL output filenames
-std::string Options::getNLLPFileName() const
+std::string Options::getNLLRootName() const
 {
-    return pImpl->mNLLFileNameP;
+    return pImpl->mNLLRootName;
 }
 
-std::string Options::getNLLSFileName() const
+std::string Options::getNLLOutputDirectory() const
 {
-    return pImpl->mNLLFileNameS;
+    return pImpl->mNLLOutputDirectory;
 }
 
 /// VTK output file name

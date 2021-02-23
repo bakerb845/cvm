@@ -5,7 +5,13 @@
 #include <vector>
 #include <limits>
 #include <cassert>
+#ifdef USE_STD_FILESYSTEM
+  #include <filesystem>
+  namespace fs = std::filesystem;
+  #define HAVE_FS 1
+#endif
 #include "cvm/model.hpp"
+#include "cvm/geodetic.hpp"
 #include "cvm/selection.hpp"
 #include "cvm/constants.hpp"
 #include "cvm/options.hpp"
@@ -507,6 +513,26 @@ double Model::getGridSpacingInZ() const
     return pImpl->mDz;
 }
 
+/// Grid origin
+double Model::getGridOriginInX() const
+{
+    if (!isLoaded()){throw std::runtime_error("Model not loaded");}
+    return pImpl->mX0;
+}
+
+double Model::getGridOriginInY() const
+{
+    if (!isLoaded()){throw std::runtime_error("Model not loaded");}
+    return pImpl->mY0;
+}
+
+double Model::getGridOriginInZ() const
+{
+    if (!isLoaded()){throw std::runtime_error("Model not loaded");}
+    return pImpl->mZ0;
+}
+
+/// Velocity model pointer
 const float *Model::getPVelocityPointer() const
 {
     if (!isLoaded()){throw std::runtime_error("Model not loaded");}
@@ -533,53 +559,102 @@ void Model::writeVelocities(const Options &options,
     auto dx = getGridSpacingInX();
     auto dy = getGridSpacingInY();
     auto dz = getGridSpacingInZ();
-    auto vp = getPVelocityPointer(); 
-    auto vs = getSVelocityPointer();
+    const float *__restrict__ vp = getPVelocityPointer(); 
+    const float *__restrict__ vs = getSVelocityPointer();
+    auto x0 = getGridOriginInX(); 
+    auto y0 = getGridOriginInY();
+    auto z0 = getGridOriginInZ(); 
+    auto originLL = Geodetic::utmToLatitudeLongitude(std::pair(x0, y0)); 
+    if (originLL.second > 180){originLL.second = originLL.second - 360;}
     if (fileType == FileType::NLL)
     {
-        auto pVelocityFileName = options.getNLLPFileName(); 
-        auto sVelocityFileName = options.getNLLSFileName();
-std::cout << "here" << pVelocityFileName << ";" << sVelocityFileName << std::endl;
-        if (!pVelocityFileName.empty() || !sVelocityFileName.empty())
+        auto outputDirectory = options.getNLLOutputDirectory();
+        auto rootName = options.getNLLRootName();
+#ifdef HAVE_FS
+        if (!fs::exists(outputDirectory))
         {
-            for (int iPhase = 0; iPhase < 2; ++iPhase)
+            std::cout << "Creating directory: " << outputDirectory << std::endl;
+            fs::create_directories(outputDirectory);
+        }
+#endif
+        auto pBufferName = outputDirectory + "/" + rootName + ".P.mod.buf";
+        auto sBufferName = outputDirectory + "/" + rootName + ".S.mod.buf";
+        auto pHeaderName = outputDirectory + "/" + rootName + ".P.mod.hdr";
+        auto sHeaderName = outputDirectory + "/" + rootName + ".S.mod.hdr";
+           
+        for (int iPhase = 0; iPhase < 2; ++iPhase)
+        {
+            // Get file name
+            auto bufferName = pBufferName;
+            auto headerName = sBufferName;
+            if (iPhase == 1)
             {
-                // Get file name
-                auto fileName = pVelocityFileName;
-                if (iPhase == 1){fileName = sVelocityFileName;}
-                if (fileName.empty()){continue;} // Not specified; dont write
-                // Get pointer to write model
-                const float *v = vp; 
-                if (iPhase == 1){v = vs;}
-                auto vOutPtr = reinterpret_cast<const char *> (v);
-                auto nBytes = static_cast<size_t> (nx*ny*nz)*sizeof(float);
-                // Open file
-                std::cout << "Writing: " << fileName << std::endl;
-                std::ofstream nllBinFile;
-                nllBinFile.open(fileName, std::ios::out | std::ios::binary);
-                nllBinFile.write(vOutPtr, nBytes);
-                nllBinFile.close();
+                 bufferName = sBufferName;
+                 headerName = sHeaderName;
             }
+            // Get pointer to write model
+            const float *v = vp; 
+            if (iPhase == 1){v = vs;}
+            auto vOutPtr = reinterpret_cast<const char *> (v);
+            auto nBytes = static_cast<size_t> (nx*ny*nz)*sizeof(float);
+            // Open file
+            std::cout << "Writing: " << bufferName << std::endl;
+            std::ofstream nllBufferFile;
+            nllBufferFile.open(bufferName, std::ios::out | std::ios::binary);
+            nllBufferFile.write(vOutPtr, nBytes);
+            nllBufferFile.close();
+            
+            auto fHeaderFile = fopen(headerName.data(), "w");
+            fprintf(fHeaderFile,
+                    "%d %d %d %lf %lf %lf %lf %lf %lf VELOCITY_METERS\n",
+                    nx, ny, nz,
+                    x0/1000, y0/1000, z0/1000,
+                    dx/1000, dy/1000, dz/1000);
+            fprintf(fHeaderFile, "FLOAT\n");
+            fprintf(fHeaderFile, "TRANS SIMPLE %8.3lf %8.3lf %8.3lf\n",
+                    originLL.first, originLL.second, 0.0);
+            fclose(fHeaderFile);
         }
     }
     else if (fileType == FileType::VTK)
     {
+        // Get file name
         auto vtkFile = options.getVTKFileName();
         if (vtkFile.empty()){return;}
+        // Transpose result
+        std::cout << "Transposing model for VTK..." << std::endl;
+        std::vector<float> workVp(nx*ny*nz, 0);
+        std::vector<float> workVs(nx*ny*nz, 0);
+        float *__restrict__ vpPtr = workVp.data();
+        float *__restrict__ vsPtr = workVs.data();
+        for (int iz = 0; iz < nz; ++iz)
+        {
+            for (int iy = 0; iy < ny; ++iy)
+            {
+                for (int ix = 0; ix < nx; ++ix)
+                {
+                    auto isrc = ix*ny*nz + iy*nz + iz;
+                    auto idst = iz*nx*ny + iy*nx + ix;
+                    vpPtr[idst] = vp[isrc];
+                    vsPtr[idst] = vs[isrc];
+                }
+            }
+        }
+        std::cout << "Writing: " << vtkFile << std::endl;
         const int useBinary = static_cast<int> (true);
         const int nVars = 2;
         std::array<int, 3> dims{nx, ny, nz};
-        const char *const varNames[2] = {"vp m/s", "vs m/s"};
-        const float *vars[2] = {vp, vs}; 
-        std::array<int, 2> centering{0, 0}; 
+        const char *varNames[2] = {"vp_m/s\0", "vs_m/s\0"};
+        const float *vars[] = {workVp.data(), workVs.data()}; 
+        std::array<int, 2> centering{1, 1}; 
         std::array<int, 2> varDim{1, 1}; 
-        std::vector<float> x(nx, 0); 
-        std::vector<float> y(ny, 0); 
-        std::vector<float> z(nz, 0); 
+        std::vector<float> x(nx, 0);
+        std::vector<float> y(ny, 0);
+        std::vector<float> z(nz, 0);
         for (int i = 0; i < nx; ++i){x[i] = i*dx;}
         for (int i = 0; i < ny; ++i){y[i] = i*dy;}
-        for (int i = 0; i < nz; ++i){z[i] = i*dz;} 
-        write_rectilinear_mesh("test", useBinary,
+        for (int i = 0; i < nz; ++i){z[i] = z0 - i*dz;} 
+        write_rectilinear_mesh(vtkFile.data(), useBinary,
                                dims.data(), x.data(), y.data(), z.data(),
                                nVars, varDim.data(), centering.data(),
                                varNames, vars);

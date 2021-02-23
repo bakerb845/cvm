@@ -70,6 +70,16 @@ public:
     /// @throws std::runtime_error if \c isLoaded() is false.
     [[nodiscard]] double getGridSpacingInZ() const;
 
+    /// @result The grid UTM grid origin in x in meters.
+    /// @throws std::runtime_error if \c isLoaded() is false.
+    [[nodiscard]] double getGridOriginInX() const;
+    /// @result The grid UTM grid origin in y in meters.
+    /// @throws std::runtime_error if \c isLoaded() is false.
+    [[nodiscard]] double getGridOriginInY() const;
+    /// @result The grid UTM grid origin in z in meters.
+    /// @throws std::runtime_error if \c isLoaded() is false.
+    [[nodiscard]] double getGridOriginInZ() const;
+
 
     void writeVelocities(const Options &options,
                          FileType fileType = FileType::NLL) const;

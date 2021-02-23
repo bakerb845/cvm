@@ -62,10 +62,10 @@ public:
     double getNLLGridSpacingInY() const;
     /// @result Grid spacing in z for NLL in meters.
     double getNLLGridSpacingInZ() const;
-    /// @result P velocity file name for NLL.
-    std::string getNLLPFileName() const;
-    /// @result S velocity file name for NLL.
-    std::string getNLLSFileName() const;
+    /// @result NLL output directory.
+    std::string getNLLOutputDirectory() const;
+    /// @result Root output file name for NLL.
+    std::string getNLLRootName() const;
     /// @}
 
     /// @name VTK
