@@ -586,7 +586,7 @@ void Model::writeVelocities(const Options &options,
         {
             // Get file name
             auto bufferName = pBufferName;
-            auto headerName = sBufferName;
+            auto headerName = pBufferName;
             if (iPhase == 1)
             {
                  bufferName = sBufferName;
