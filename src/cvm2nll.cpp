@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
     // Load the file
     CVM::Model model;
     model.load(options);
+    model.writeVelocities(options, CVM::FileType::NLL);
 /*
     auto selection = options.getSelection();
 std::string fileNameLayer1 = "../data/vp_16Bl1.bin";

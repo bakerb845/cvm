@@ -56,9 +56,22 @@ public:
 
     /// @name NonLinLoc
     /// @{
+    /// @result Grid spacing in x for NLL in meters.
     double getNLLGridSpacingInX() const;
+    /// @result Grid spacing in y for NLL in meters.
     double getNLLGridSpacingInY() const;
+    /// @result Grid spacing in z for NLL in meters.
     double getNLLGridSpacingInZ() const;
+    /// @result P velocity file name for NLL.
+    std::string getNLLPFileName() const;
+    /// @result S velocity file name for NLL.
+    std::string getNLLSFileName() const;
+    /// @}
+
+    /// @name VTK
+    /// @{
+    /// @result The name of the VTK file name.
+    std::string getVTKFileName() const;
     /// @}
 private:
     class OptionsImpl;

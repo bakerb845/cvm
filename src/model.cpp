@@ -243,13 +243,14 @@ void interpolateModel(const bool lvp,
     *nz = static_cast<int> (std::round(z1 - z0)/dz) + 1;
     v->resize((*nx)*(*ny)*(*nz), 0);
     // Begin interpolation process
-    for (int iz = 0; iz < *nz; ++iz)
+    for (int ix = 0; ix < *nx; ++ix)
     {
         for (int iy = 0; iy < *ny; ++iy)
         {
-            for (int ix = 0; ix < *nx; ++ix)
+            for (int iz = 0; iz < *nz; ++iz)
             {
-                auto idst = iz*(*nx)*(*ny) + iy*(*nx) + ix;
+                //auto idst = iz*(*nx)*(*ny) + iy*(*nx) + ix;
+                auto idst = ix*(*nz)*(*ny) + iy*(*nz) + iz;
                 auto x = static_cast<float> (dx*ix);
                 auto y = static_cast<float> (dy*iy);
                 auto z = static_cast<float> (z0 + dz*iz);
@@ -415,16 +416,19 @@ void Model::load(const Options &options)
                      dx, dy, dz,
                      layer1, layer2, layer3,
                      &nx, &ny, &nz, &pImpl->mPModel);
+/*
+std::cout << "delete debug file" << std::endl;
 std::ofstream debugFile("vp.txt");
 for (int iz = 0; iz < nz; ++iz)
 {
     int iy = ny/2;
     for (int ix = 0; ix < nx; ++ix)
     {
-        debugFile << ix*dx << " " << -iz*dz << " " << pImpl->mPModel[iz*(nx*ny) + iy*nx + ix] << std::endl;
+        debugFile << ix*dx << " " << -iz*dz << " " << pImpl->mPModel[ix*(nz*ny) + iy*nz + iz] << std::endl;
     }
    debugFile << std::endl;
 }
+*/
 
     // S velocity model
     std::cout << "Loading S velocity model..." << std::endl;
@@ -515,10 +519,14 @@ const float *Model::getSVelocityPointer() const
     return pImpl->mSModel.data();
 }
 
-void Model::writeVelocities(const std::string &pFileName,
-                            const std::string &sFileName,
+/// Write the velocity model
+void Model::writeVelocities(const Options &options,
                             const FileType fileType) const
 {
+    if (!isLoaded())
+    {
+        throw std::runtime_error("Model not yet loaded");
+    }
     auto nx = getNumberOfGridPointsInX();
     auto ny = getNumberOfGridPointsInY();
     auto nz = getNumberOfGridPointsInZ();
@@ -529,52 +537,52 @@ void Model::writeVelocities(const std::string &pFileName,
     auto vs = getSVelocityPointer();
     if (fileType == FileType::NLL)
     {
-        std::vector<char> vOut(4*nx*ny*nz); 
-        for (int iPhase = 0; iPhase < 2; ++iPhase)
+        auto pVelocityFileName = options.getNLLPFileName(); 
+        auto sVelocityFileName = options.getNLLSFileName();
+std::cout << "here" << pVelocityFileName << ";" << sVelocityFileName << std::endl;
+        if (!pVelocityFileName.empty() || !sVelocityFileName.empty())
         {
-            // Permute velocity model for NLL
-            const float *v = vp;
-            if (iPhase == 1){v = vs;}
-            std::fill(vOut.begin(), vOut.end(), 0);
-            auto vOutPtr = reinterpret_cast<float *> (vOut.data());
-            for (int ix = 0; ix < nx; ++ix)
+            for (int iPhase = 0; iPhase < 2; ++iPhase)
             {
-                for (int iy = 0; iy < ny; ++iy)
-                {
-                    for (int iz = 0; iz < nz; ++iz)
-                    {
-                        auto isrc = iz*nx*ny + iy*nx + ix;
-                        auto idst = ix*ny*nz + iy*nz + iz;
-                        vOutPtr[idst] = v[isrc];
-                    }
-                }
+                // Get file name
+                auto fileName = pVelocityFileName;
+                if (iPhase == 1){fileName = sVelocityFileName;}
+                if (fileName.empty()){continue;} // Not specified; dont write
+                // Get pointer to write model
+                const float *v = vp; 
+                if (iPhase == 1){v = vs;}
+                auto vOutPtr = reinterpret_cast<const char *> (v);
+                auto nBytes = static_cast<size_t> (nx*ny*nz)*sizeof(float);
+                // Open file
+                std::cout << "Writing: " << fileName << std::endl;
+                std::ofstream nllBinFile;
+                nllBinFile.open(fileName, std::ios::out | std::ios::binary);
+                nllBinFile.write(vOutPtr, nBytes);
+                nllBinFile.close();
             }
-            // Write it
-            std::ofstream nllBinFile;
-            auto fileName = pFileName;
-            if (iPhase == 1){fileName = sFileName;}
-            nllBinFile.open(fileName, std::ios::out | std::ios::binary);
-            nllBinFile.write(vOut.data(), vOut.size());
         }
     }
     else if (fileType == FileType::VTK)
     {
+        auto vtkFile = options.getVTKFileName();
+        if (vtkFile.empty()){return;}
         const int useBinary = static_cast<int> (true);
         const int nVars = 2;
-        std::array<int, 3> dims{nz, ny, nx};
+        std::array<int, 3> dims{nx, ny, nz};
         const char *const varNames[2] = {"vp m/s", "vs m/s"};
         const float *vars[2] = {vp, vs}; 
-        std::array<int, 2> centering{0, 0};
-        std::array<int, 2> varDim{1, 1};
-        std::vector<float> x(nx, 0);
-        std::vector<float> y(ny, 0);
-        std::vector<float> z(nz, 0);
+        std::array<int, 2> centering{0, 0}; 
+        std::array<int, 2> varDim{1, 1}; 
+        std::vector<float> x(nx, 0); 
+        std::vector<float> y(ny, 0); 
+        std::vector<float> z(nz, 0); 
         for (int i = 0; i < nx; ++i){x[i] = i*dx;}
         for (int i = 0; i < ny; ++i){y[i] = i*dy;}
         for (int i = 0; i < nz; ++i){z[i] = i*dz;} 
         write_rectilinear_mesh("test", useBinary,
-                               dims.data(), z.data(), y.data(), x.data(),
+                               dims.data(), x.data(), y.data(), z.data(),
                                nVars, varDim.data(), centering.data(),
                                varNames, vars);
     }
 }
+

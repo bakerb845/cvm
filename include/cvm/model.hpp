@@ -71,6 +71,8 @@ public:
     [[nodiscard]] double getGridSpacingInZ() const;
 
 
+    void writeVelocities(const Options &options,
+                         FileType fileType = FileType::NLL) const;
     void writeVelocities(const std::string &pFileName,
                          const std::string &sFileName,
                          FileType fileType = FileType::NLL) const;

@@ -20,6 +20,12 @@ public:
     Selection mSelection;
     std::array<std::string, 3> mPModelName{"", "", ""};
     std::array<std::string, 3> mSModelName{"", "", ""};
+    // NLL output file names
+    std::string mNLLFileNameP = "";
+    std::string mNLLFileNameS = "";
+    // VTK output file name
+    std::string mVTKFileName = "";
+    // Imputation velocities
     double mPImputationVelocity = 1482;
     double mSImputationVelocity = 0;
     // NonLinLoc grid spacing in meters
@@ -71,11 +77,20 @@ Options::~Options() = default;
 /// Reset the class
 void Options::clear() noexcept
 {
+    pImpl->mSelection = CVM::Selection();
     for (size_t i = 0; i < pImpl->mPModelName.size(); ++i)
     {
         pImpl->mPModelName[i].clear();
         pImpl->mSModelName[i].clear();
     }
+    pImpl->mNLLFileNameP.clear();
+    pImpl->mNLLFileNameS.clear();
+    pImpl->mVTKFileName.clear();
+    pImpl->mPImputationVelocity = 1482;
+    pImpl->mSImputationVelocity = 0;
+    pImpl->mNLLdx = 200;
+    pImpl->mNLLdy = 200;
+    pImpl->mNLLdz = 200;
 }
 
 /// Parses an ini file
@@ -258,12 +273,34 @@ void Options::parse(const std::string &fileName)
         }
         pImpl->mNLLdz = dz;
     }
-    catch(const std::exception &e) 
+    catch (const std::exception &e) 
     {
     }
 
+    // NLL file name
+    try
+    {
+        pImpl->mNLLFileNameP = pt.get<std::string> ("NLL.pFileName");
+    }
+    catch (const std::exception &e)
+    {
+    }
+    try
+    {
+        pImpl->mNLLFileNameS = pt.get<std::string> ("NLL.sFileName");
+    }
+    catch (const std::exception &e)
+    {
+    }
 
-
+    // VTK file name
+    try
+    {
+        pImpl->mVTKFileName = pt.get<std::string> ("VTK.fileName");
+    }
+    catch (const std::exception &e)
+    {
+    }
 }
 
 Selection Options::getSelection() const noexcept
@@ -320,3 +357,19 @@ double Options::getNLLGridSpacingInZ() const
     return pImpl->mNLLdz;
 }
 
+/// NLL output filenames
+std::string Options::getNLLPFileName() const
+{
+    return pImpl->mNLLFileNameP;
+}
+
+std::string Options::getNLLSFileName() const
+{
+    return pImpl->mNLLFileNameS;
+}
+
+/// VTK output file name
+std::string Options::getVTKFileName() const
+{
+    return pImpl->mVTKFileName;
+} 
