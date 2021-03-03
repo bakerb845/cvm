@@ -624,12 +624,12 @@ void Model::writeVelocities(const Options &options,
             std::cout << "Writing: " << headerName << std::endl;
             auto fHeaderFile = fopen(headerName.data(), "w");
             fprintf(fHeaderFile,
-                    "%d %d %d %lf %lf %lf %lf %lf %lf SLOW_LEN\n",
+                    "%d %d %d %lf %lf %lf %lf %lf %lf SLOW_LEN ",
                     nx, ny, nz,
                     x0/1000, y0/1000, z0/1000,
                     dx/1000, dy/1000, dz/1000);
             fprintf(fHeaderFile, "FLOAT\n");
-            fprintf(fHeaderFile, "TRANS SIMPLE %8.3lf %8.3lf %8.3lf\n",
+            fprintf(fHeaderFile, "TRANSFORM SIMPLE LatOrig %8.3lf LonOrig %8.3lf RotCW %8.3lf\n",
                     originLL.first, originLL.second, 0.0);
             fclose(fHeaderFile);
         }
