@@ -568,6 +568,14 @@ void Model::writeVelocities(const Options &options,
     if (originLL.second > 180){originLL.second = originLL.second - 360;}
     if (fileType == FileType::NLL)
     {
+        if (std::abs(dx - dy) > 1.e-5 || std::abs(dx - dz) > 1.e-5)
+        {
+            throw std::invalid_argument("Grid spacing in x, y, and z "
+                                      + std::to_string(dx) + ","
+                                      + std::to_string(dy) + ","
+                                      + std::to_string(dz)
+                                      + " must be equal to write NLL files");
+        }
         auto outputDirectory = options.getNLLOutputDirectory();
         auto rootName = options.getNLLRootName();
 #ifdef HAVE_FS
@@ -581,7 +589,7 @@ void Model::writeVelocities(const Options &options,
         auto sBufferName = outputDirectory + "/" + rootName + ".S.mod.buf";
         auto pHeaderName = outputDirectory + "/" + rootName + ".P.mod.hdr";
         auto sHeaderName = outputDirectory + "/" + rootName + ".S.mod.hdr";
-           
+        std::vector<float> vOut(nx*ny*nz); 
         for (int iPhase = 0; iPhase < 2; ++iPhase)
         {
             // Get file name
@@ -595,8 +603,15 @@ void Model::writeVelocities(const Options &options,
             // Get pointer to write model
             const float *v = vp; 
             if (iPhase == 1){v = vs;}
-            auto vOutPtr = reinterpret_cast<const char *> (v);
+            // Rescale to length*slowness
+            float *__restrict__ vOutWork = vOut.data();
+            for (int i = 0; i < nx*ny*nz; ++i)
+            {
+                vOutWork[i] = dx/v[i]; 
+            }
+            // Get handle on thing to write
             auto nBytes = static_cast<size_t> (nx*ny*nz)*sizeof(float);
+            auto vOutPtr = reinterpret_cast<const char *> (vOutWork);
             // Open file
             std::cout << "Writing: " << bufferName << std::endl;
             std::ofstream nllBufferFile;
@@ -606,7 +621,7 @@ void Model::writeVelocities(const Options &options,
             
             auto fHeaderFile = fopen(headerName.data(), "w");
             fprintf(fHeaderFile,
-                    "%d %d %d %lf %lf %lf %lf %lf %lf VELOCITY_METERS\n",
+                    "%d %d %d %lf %lf %lf %lf %lf %lf SLOW_LEN\n",
                     nx, ny, nz,
                     x0/1000, y0/1000, z0/1000,
                     dx/1000, dy/1000, dz/1000);
