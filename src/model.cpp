@@ -603,7 +603,9 @@ void Model::writeVelocities(const Options &options,
             // Get pointer to write model
             const float *v = vp; 
             if (iPhase == 1){v = vs;}
-            // Rescale to length*slowness
+            // Rescale to length*slowness. 
+            // Note dx is in units of meters and velocity is in units of
+            // meters so the output is units of m*(s/m) = seconds.
             float *__restrict__ vOutWork = vOut.data();
             for (int i = 0; i < nx*ny*nz; ++i)
             {
