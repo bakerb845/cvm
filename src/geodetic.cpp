@@ -290,8 +290,8 @@ void utm_geo(double *rlon4, double *rlat4,
     rlat1 = u + f1 + f2 + f3;
     dlat1 = rlat1*RADIANS_TO_DEGREES;
     if (dlat1 >= 90.0 || dlat1 <= -90.0){
-      dlat1 = std::min(dlat1,90.0);
-      dlat1 = std::max(dlat1,-90.0);
+      dlat1 = std::fmin(dlat1,90.0);
+      dlat1 = std::fmax(dlat1,-90.0);
       dlon = cm;
     }else{
       c1 = ep2*std::pow(cos(rlat1),2);
