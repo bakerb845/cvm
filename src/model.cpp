@@ -594,11 +594,11 @@ void Model::writeVelocities(const Options &options,
         {
             // Get file name
             auto bufferName = pBufferName;
-            auto headerName = pBufferName;
+            auto headerName = pHeaderName;
             if (iPhase == 1)
             {
-                 bufferName = sBufferName;
-                 headerName = sHeaderName;
+                bufferName = sBufferName;
+                headerName = sHeaderName;
             }
             // Get pointer to write model
             const float *v = vp; 
@@ -619,6 +619,7 @@ void Model::writeVelocities(const Options &options,
             nllBufferFile.write(vOutPtr, nBytes);
             nllBufferFile.close();
             
+            std::cout << "Writing: " << headerName << std::endl;
             auto fHeaderFile = fopen(headerName.data(), "w");
             fprintf(fHeaderFile,
                     "%d %d %d %lf %lf %lf %lf %lf %lf SLOW_LEN\n",
@@ -655,7 +656,7 @@ void Model::writeVelocities(const Options &options,
                 }
             }
         }
-        std::cout << "Writing: " << vtkFile << std::endl;
+        std::cout << "Writing VTK file: " << vtkFile << std::endl;
         const int useBinary = static_cast<int> (true);
         const int nVars = 2;
         std::array<int, 3> dims{nx, ny, nz};
